@@ -1,0 +1,20 @@
+services:
+  - type: web_service
+    name: expense-tracker-backend
+    env: node
+    region: oregon
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: MONGO_URI
+      - key: JWT_SECRET
+      - key: CLIENT_URL
+      - key: NODE_ENV
+  - type: static_site
+    name: expense-tracker-frontend
+    env: static
+    region: oregon
+    buildCommand: "npm install && npm run build"
+    publishPath: "client/dist"
+    envVars:
+      - key: VITE_API_URL
