@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,7 +22,7 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center px-4">
+    <div className="flex min-h-[80vh] items-center justify-center px-4">
       <div className="w-full max-w-md rounded-3xl bg-slate-800/95 border border-slate-700 p-8 shadow-2xl backdrop-blur">
         <h1 className="text-3xl font-semibold">Create an account</h1>
         <p className="mt-3 text-slate-400">Start tracking income and expenses instantly.</p>
@@ -79,6 +80,13 @@ export const RegisterPage = () => {
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-slate-400">
+          Already have an account?{' '}
+          <Link to="/login" className="font-semibold text-indigo-400 hover:text-indigo-300 transition">
+            Sign In
+          </Link>
+        </p>
       </div>
     </div>
   );

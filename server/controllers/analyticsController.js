@@ -1,9 +1,10 @@
 const Expense = require('../models/Expense');
 const mongoose = require('mongoose');
+const catchAsync = require('../utils/catchAsync');
 
-const summary = async (req, res) => {
+const summary = catchAsync(async (req, res) => {
     const results = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(req.user.id), deleted: false } },
+        { $match: { userId: new mongoose.Types.ObjectId(req.user.id), deleted: false } },
         { $group: { _id: '$transactionType', total: { $sum: '$amount' } } },
     ]);
 
@@ -17,11 +18,11 @@ const summary = async (req, res) => {
         totalExpenses: response.expense,
         balance: response.income - response.expense,
     });
-};
+});
 
-const monthly = async (req, res) => {
+const monthly = catchAsync(async (req, res) => {
     const results = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(req.user.id), deleted: false } },
+        { $match: { userId: new mongoose.Types.ObjectId(req.user.id), deleted: false } },
         {
             $group: {
                 _id: { year: { $year: '$date' }, month: { $month: '$date' }, type: '$transactionType' },
@@ -39,16 +40,16 @@ const monthly = async (req, res) => {
     }, {});
 
     return res.json(Object.values(data));
-};
+});
 
-const categories = async (req, res) => {
+const categories = catchAsync(async (req, res) => {
     const results = await Expense.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(req.user.id), deleted: false } },
+        { $match: { userId: new mongoose.Types.ObjectId(req.user.id), deleted: false } },
         { $group: { _id: '$category', total: { $sum: '$amount' } } },
         { $sort: { total: -1 } },
     ]);
 
     return res.json(results.map((item) => ({ category: item._id, total: item.total })));
-};
+});
 
 module.exports = { summary, monthly, categories };

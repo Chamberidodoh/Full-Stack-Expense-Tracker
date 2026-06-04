@@ -1,8 +1,9 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { generateToken } = require('../services/tokenService');
+const catchAsync = require('../utils/catchAsync');
 
-const register = async (req, res) => {
+const register = catchAsync(async (req, res) => {
     const { name, email, password } = req.body;
     const existingUser = await User.findOne({ email });
 
@@ -18,9 +19,9 @@ const register = async (req, res) => {
         token,
         user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
     });
-};
+});
 
-const login = async (req, res) => {
+const login = catchAsync(async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
@@ -39,17 +40,17 @@ const login = async (req, res) => {
         token,
         user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
     });
-};
+});
 
-const getProfile = async (req, res) => {
+const getProfile = catchAsync(async (req, res) => {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
         return res.status(404).json({ message: 'Profile not found.' });
     }
     return res.json(user);
-};
+});
 
-const updateProfile = async (req, res) => {
+const updateProfile = catchAsync(async (req, res) => {
     const { name, email, avatar } = req.body;
     const user = await User.findById(req.user.id);
 
@@ -63,9 +64,9 @@ const updateProfile = async (req, res) => {
     await user.save();
 
     return res.json({ id: user._id, name: user.name, email: user.email, avatar: user.avatar });
-};
+});
 
-const changePassword = async (req, res) => {
+const changePassword = catchAsync(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const user = await User.findById(req.user.id);
 
@@ -82,6 +83,6 @@ const changePassword = async (req, res) => {
     await user.save();
 
     return res.json({ message: 'Password updated successfully.' });
-};
+});
 
 module.exports = { register, login, getProfile, updateProfile, changePassword };

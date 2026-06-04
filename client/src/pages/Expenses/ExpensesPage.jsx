@@ -20,7 +20,9 @@ const sortOptions = [
 
 export const ExpensesPage = () => {
   const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [filters, setFilters] = useState({ search: '', category: '', transactionType: '', startDate: '', endDate: '', sort: 'newest', page: 1, limit: 10 });
   const [totalCount, setTotalCount] = useState(0);
@@ -39,7 +41,11 @@ export const ExpensesPage = () => {
   const watchAll = watch();
 
   const loadExpenses = async () => {
-    setLoading(true);
+    if (isFirstLoad) {
+      setInitialLoading(true);
+    } else {
+      setTableLoading(true);
+    }
     try {
       const { data } = await fetchExpenses({
         ...filters,
@@ -48,10 +54,14 @@ export const ExpensesPage = () => {
       });
       setExpenses(data.expenses);
       setTotalCount(data.total);
+      if (isFirstLoad) {
+        setIsFirstLoad(false);
+      }
     } catch (error) {
       toast.error('Failed to load expenses');
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -102,7 +112,7 @@ export const ExpensesPage = () => {
 
   const totalPages = Math.ceil(totalCount / filters.limit);
 
-  if (loading) return <LoadingSpinner />;
+  if (initialLoading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-8">
@@ -156,7 +166,10 @@ export const ExpensesPage = () => {
       <section className="rounded-3xl border border-slate-700 bg-slate-950/90 p-6 shadow-2xl">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-white">Transactions</h2>
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              Transactions
+              {tableLoading && <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />}
+            </h2>
             <p className="mt-1 text-sm text-slate-400">Search, filter and sort your activity.</p>
           </div>
 
@@ -182,7 +195,7 @@ export const ExpensesPage = () => {
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900">
+        <div className={`mt-6 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 transition-opacity duration-200 ${tableLoading ? 'opacity-50' : 'opacity-100'}`}>
           <table className="min-w-full divide-y divide-slate-800 text-sm text-left text-slate-300">
             <thead className="bg-slate-950/80 text-slate-400">
               <tr>

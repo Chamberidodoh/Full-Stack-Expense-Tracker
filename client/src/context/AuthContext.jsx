@@ -38,18 +38,24 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     setLoading(true);
-    const response = await loginUser(credentials);
-    saveAuth(response.data.token, response.data.user);
-    setLoading(false);
-    navigate('/dashboard');
+    try {
+      const response = await loginUser(credentials);
+      saveAuth(response.data.token, response.data.user);
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (payload) => {
     setLoading(true);
-    const response = await registerUser(payload);
-    saveAuth(response.data.token, response.data.user);
-    setLoading(false);
-    navigate('/dashboard');
+    try {
+      const response = await registerUser(payload);
+      saveAuth(response.data.token, response.data.user);
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = useMemo(() => ({ user, token, loading, login, register, logout, setUser }), [user, token, loading]);

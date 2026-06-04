@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { getProfile, updateProfile, changePassword } from '../../api';
+import { useAuth } from '../../context/AuthContext';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 
 export const ProfilePage = () => {
+  const { setUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +33,8 @@ export const ProfilePage = () => {
     try {
       const response = await updateProfile(data);
       setProfile(response.data);
+      setUser(response.data);
+      localStorage.setItem('expense_user', JSON.stringify(response.data));
       toast.success('Profile updated');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Unable to update profile');

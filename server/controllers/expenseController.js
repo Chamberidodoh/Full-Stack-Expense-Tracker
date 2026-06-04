@@ -1,7 +1,8 @@
 const Expense = require('../models/Expense');
 const mongoose = require('mongoose');
+const catchAsync = require('../utils/catchAsync');
 
-const getExpenses = async (req, res) => {
+const getExpenses = catchAsync(async (req, res) => {
     const { page = 1, limit = 10, search = '', category = '', transactionType = '', startDate = '', endDate = '', sort = 'newest' } = req.query;
     const filters = { userId: req.user.id, deleted: false };
 
@@ -35,17 +36,17 @@ const getExpenses = async (req, res) => {
     const total = await Expense.countDocuments(filters);
 
     return res.json({ expenses, total, page: Number(page), limit: Number(limit) });
-};
+});
 
-const getExpenseById = async (req, res) => {
+const getExpenseById = catchAsync(async (req, res) => {
     const expense = await Expense.findOne({ _id: req.params.id, userId: req.user.id, deleted: false });
     if (!expense) {
         return res.status(404).json({ message: 'Expense not found.' });
     }
     return res.json(expense);
-};
+});
 
-const createExpense = async (req, res) => {
+const createExpense = catchAsync(async (req, res) => {
     const expense = await Expense.create({
         userId: req.user.id,
         title: req.body.title,
@@ -57,9 +58,9 @@ const createExpense = async (req, res) => {
     });
 
     return res.status(201).json(expense);
-};
+});
 
-const updateExpense = async (req, res) => {
+const updateExpense = catchAsync(async (req, res) => {
     const expense = await Expense.findOneAndUpdate(
         { _id: req.params.id, userId: req.user.id, deleted: false },
         { $set: req.body },
@@ -71,9 +72,9 @@ const updateExpense = async (req, res) => {
     }
 
     return res.json(expense);
-};
+});
 
-const deleteExpense = async (req, res) => {
+const deleteExpense = catchAsync(async (req, res) => {
     const expense = await Expense.findOneAndUpdate(
         { _id: req.params.id, userId: req.user.id, deleted: false },
         { $set: { deleted: true } },
@@ -85,6 +86,6 @@ const deleteExpense = async (req, res) => {
     }
 
     return res.json({ message: 'Expense deleted successfully.' });
-};
+});
 
 module.exports = { getExpenses, getExpenseById, createExpense, updateExpense, deleteExpense };
